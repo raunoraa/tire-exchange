@@ -1,10 +1,6 @@
 package com.example.tire_exchange.controller;
 
-import com.example.tire_exchange.service.TireExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -13,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TireExchangeController {
 
+    /*
     private final TireExchangeService tireExchangeService;
 
     @Autowired
@@ -20,6 +17,9 @@ public class TireExchangeController {
         this.tireExchangeService = tireExchangeService;
     }
 
+     */
+
+    /*
     @GetMapping("/fetch-tires")
     public String fetchTires() {
         return tireExchangeService.getTireData();
@@ -29,4 +29,6 @@ public class TireExchangeController {
     public String submitTireData(@RequestBody Object requestData) {
         return tireExchangeService.postTireData(requestData);
     }
+
+     */
 }
