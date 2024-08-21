@@ -2,7 +2,6 @@ package com.example.tire_exchange.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,7 +26,7 @@ public class TireExchangeService {
      * @param list1 The list, to which we are adding elements into.
      * @param list2 The list we are taking elements from.
      */
-    private void mergeSortedLists(List<Map.Entry<LocalDate, LocalTime>> list1, List<Map.Entry<LocalDate, LocalTime>> list2) {
+    private void mergeSortedLists(List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> list1, List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> list2) {
 
         //If there are no elements in the first list yet, just add all the elements from the second list and return.
         if (list1.isEmpty()){
@@ -45,8 +44,8 @@ public class TireExchangeService {
         // Merge lists starting from the end to avoid overwriting elements
         while (i >= 0 && j >= 0) {
 
-            LocalTime time1 = list1.get(i).getValue(); // Assuming getTime() returns LocalDateTime
-            LocalTime time2 = list2.get(j).getValue();
+            LocalTime time1 = list1.get(i).getValue().getValue(); // Assuming getTime() returns LocalDateTime
+            LocalTime time2 = list2.get(j).getValue().getValue();
 
             if (time1.isAfter(time2)) {
                 list1.set(k--, list1.get(i--));
@@ -54,7 +53,7 @@ public class TireExchangeService {
                 list1.set(k--, list2.get(j--));
             } else {
                 // If times are equal, compare by date
-                if (list1.get(i).getKey().isAfter(list2.get(j).getKey())) {
+                if (list1.get(i).getValue().getKey().isAfter(list2.get(j).getValue().getKey())) {
                     list1.set(k--, list1.get(i--));
                 } else {
                     list1.set(k--, list2.get(j--));
@@ -70,8 +69,8 @@ public class TireExchangeService {
         // Remaining elements in list1 are already in place
     }
 
-    public List<Map.Entry<LocalDate, LocalTime>> getAvailableTimesFromRange(String from, String to) {
-        List<Map.Entry<LocalDate, LocalTime>> allAvailableTimes = new ArrayList<>();
+    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to) {
+        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> allAvailableTimes = new ArrayList<>();
 
         // Iterate over all clients and collect their available times
         for (TireExchangeClient client : tireExchangeClients) {
@@ -107,7 +106,7 @@ public class TireExchangeService {
     }
 
     // Gets available times only from certain exchange site(s).
-    public List<Map.Entry<LocalDate, LocalTime>> getAvailableTimesFromRange(String from, String to, List<String> siteNames) {
+    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to, List<String> siteNames) {
 
         List<TireExchangeClient> observableTireExchangeClients = new ArrayList<>();
 
@@ -116,7 +115,7 @@ public class TireExchangeService {
             observableTireExchangeClients.add(getCorrectClient(siteName));
         }
 
-        List<Map.Entry<LocalDate, LocalTime>> allAvailableTimes = new ArrayList<>();
+        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> allAvailableTimes = new ArrayList<>();
 
         // Iterate over all clients and collect their available times
         for (TireExchangeClient client : observableTireExchangeClients) {

@@ -4,7 +4,7 @@ import com.example.tire_exchange.config.TireExchangeSitesProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.cglib.core.Local;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -50,24 +50,26 @@ public class ManchesterApiClient implements TireExchangeClient{
      * Helper method for converting the dates and times to suitable format
      * and sorting them in ascending order.
      *
-     * @param dateTimes Dates and times as a list of LocalDateTime objects.
+     * @param dateTimes Dates and times as a list of pair objects where first element is ID as String
+     *                  and second element is LocalDateTime object.
      * @return A list of sorted (ascending by date and time) pairs, where
-     * first el. in pair is date and second el. is time.
+     *                  first el. in pair is date and second el. is time.
      */
-    private List<Map.Entry<LocalDate, LocalTime>> convertAndSort(List<LocalDateTime> dateTimes){
+    private List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> convertAndSort(List<Map.Entry<String, LocalDateTime>> dateTimes){
 
-        List<Map.Entry<LocalDate, LocalTime>> dateTimePairs = new ArrayList<>();
+        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> dateTimePairs = new ArrayList<>();
 
-        for (LocalDateTime dateTime: dateTimes){
+        for (Map.Entry<String, LocalDateTime> entry: dateTimes){
+            LocalDateTime dateTime = entry.getValue();
             LocalDate localDate = dateTime.toLocalDate();
             LocalTime localTime = dateTime.toLocalTime();
-            dateTimePairs.add(new AbstractMap.SimpleEntry<>(localDate, localTime));
+            dateTimePairs.add(new AbstractMap.SimpleEntry<>("",new AbstractMap.SimpleEntry<>(localDate, localTime)));
         }
 
         // Sort the list first by time and then by date
         dateTimePairs.sort(Comparator
-                .comparing(Map.Entry<LocalDate, LocalTime>::getValue) // Sort by time
-                .thenComparing(Map.Entry::getKey)); // Then by date
+                .comparing((Map.Entry<String, Map.Entry<LocalDate, LocalTime>> entry) -> entry.getValue().getValue()) // Sort by time
+                .thenComparing(entry -> entry.getValue().getKey())); // Then by date
 
         return dateTimePairs;
     }
@@ -93,7 +95,7 @@ public class ManchesterApiClient implements TireExchangeClient{
     }
 
     @Override
-    public List<Map.Entry<LocalDate, LocalTime>> getAvailableTimes(String dateFrom, String dateTo) {
+    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimes(String dateFrom, String dateTo) {
 
         LocalDate from = convertStringToLocalDate(dateFrom);
         LocalDate to = convertStringToLocalDate(dateTo);
@@ -105,7 +107,8 @@ public class ManchesterApiClient implements TireExchangeClient{
         List<Map<String, Object>> responseList = parseJsonResponse(response);
 
         // Extract date and time strings from the JSON response and put them in the list of dateTimeStrings.
-        List<LocalDateTime> dateTimes = new ArrayList<>();
+        List<Map.Entry<String, LocalDateTime>> dateTimes = new ArrayList<>();
+
         for (Map<String, Object> entry : responseList) {
 
             // Only add available times to the list.
@@ -115,17 +118,30 @@ public class ManchesterApiClient implements TireExchangeClient{
                 LocalDateTime localDateTime = convertToLocalDateTime(timeString);
 
                 // Only add such available times to the list, which are before the upper limit of the dates.
+                // Update the id list correspondingly.
                 if (localDateTime.toLocalDate().isAfter(to)) {
-                    dateTimes.add(localDateTime);
+                    String id = entry.get("id").toString();
+                    dateTimes.add(new AbstractMap.SimpleEntry<>(id, localDateTime));
                 }
             }
         }
+
+
 
         return convertAndSort(dateTimes);
     }
 
     @Override
     public void bookTime(String bookId, String contactInformation) {
+        String baseUrl = exchangeSite.getApiBaseUrl() + "tire-change-times/" + bookId + "/booking";
 
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("contactInformation", contactInformation);
+
+        try {
+            restTemplate.put(baseUrl, requestBody);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Failed to update booking time!", e);
+        }
     }
 }

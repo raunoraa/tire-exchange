@@ -9,6 +9,6 @@ import java.util.Map;
 
 public interface TireExchangeClient {
     TireExchangeSitesProperties.ExchangeSite getExchangeSite();
-    List<Map.Entry<LocalDate, LocalTime>> getAvailableTimes(String dateFrom, String dateTo);
+    List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimes(String dateFrom, String dateTo);
     void bookTime(String bookId, String contactInformation);
 }
