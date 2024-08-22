@@ -69,6 +69,7 @@ public class TireExchangeService {
         // Remaining elements in list1 are already in place
     }
 
+    // Gets available times from all the apis.
     public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to) {
         List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> allAvailableTimes = new ArrayList<>();
 
@@ -81,38 +82,37 @@ public class TireExchangeService {
     }
 
     /**
-     * Helper method for getting the correct client based on the site name
-     * (we assume everywhere that site names are unique).
+     * Helper method for getting the correct client based on the site ID.
      *
-     * @param siteName Provided site name as a string.
+     * @param siteId Provided site ID as a string.
      * @return Correct tire exchange client object based on the name.
      */
-    private TireExchangeClient getCorrectClient(String siteName) {
+    private TireExchangeClient getCorrectClient(String siteId) {
         // Find the right client by name
         TireExchangeClient tireExchangeClient = null;
 
         for (TireExchangeClient client : tireExchangeClients) {
-            if (client.getExchangeSite().getName().equals(siteName)) {
+            if (client.getExchangeSite().getSiteId().equals(siteId)) {
                 tireExchangeClient = client;
                 break;
             }
         }
 
         if (tireExchangeClient == null) {
-            throw new RuntimeException("Tire exchange site with the name '" + siteName + "' was not found!");
+            throw new RuntimeException("Tire exchange site with the ID '" + siteId + "' was not found!");
         }
 
         return tireExchangeClient;
     }
 
     // Gets available times only from certain exchange site(s).
-    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to, List<String> siteNames) {
+    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to, List<String> siteIDs) {
 
         List<TireExchangeClient> observableTireExchangeClients = new ArrayList<>();
 
         // Find the right clients by name
-        for (String siteName : siteNames) {
-            observableTireExchangeClients.add(getCorrectClient(siteName));
+        for (String siteId : siteIDs) {
+            observableTireExchangeClients.add(getCorrectClient(siteId));
         }
 
         List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> allAvailableTimes = new ArrayList<>();
@@ -123,6 +123,11 @@ public class TireExchangeService {
         }
 
         return allAvailableTimes;
+    }
+
+    public void bookTime(String siteId, String bookId, String contactInformation){
+        TireExchangeClient client = getCorrectClient(siteId);
+        client.bookTime(bookId, contactInformation);
     }
 
 }

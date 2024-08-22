@@ -10,16 +10,19 @@ server:
     context-path: "/tire-exchange"
 
 
-
+# Each site will have a unique siteId (a number, which is ascending).
+# This ensures, that all the other information about sites can be changed if needed (won't break the code).
 tire-exchange-sites:
-  - name: "Manchester"
+  - siteId: "1"
+    name: "Manchester"
     address: "14 Bury New Rd, Manchester"
     vehicleTypes:
       - "Car"
       - "Truck"
     apiBaseUrl: "http://localhost:9003/api/v1/"
 
-  - name: "London"
+  - siteId: "2"
+    name: "London"
     address: "1A Gunton Rd, London"
     vehicleTypes:
       - "Car"

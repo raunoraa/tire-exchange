@@ -23,7 +23,7 @@ public class ManchesterApiClient implements TireExchangeClient{
     public ManchesterApiClient(RestTemplate restTemplate, TireExchangeSitesProperties properties, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.exchangeSite = properties.getExchangeSites().stream()
-                .filter(s -> s.getName().equals("Manchester"))
+                .filter(s -> s.getSiteId().equals("1"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Manchester site not found!"));
         this.objectMapper = objectMapper;
@@ -118,7 +118,6 @@ public class ManchesterApiClient implements TireExchangeClient{
                 LocalDateTime localDateTime = convertToLocalDateTime(timeString);
 
                 // Only add such available times to the list, which are before the upper limit of the dates.
-                // Update the id list correspondingly.
                 if (localDateTime.toLocalDate().isAfter(to)) {
                     String id = entry.get("id").toString();
                     dateTimes.add(new AbstractMap.SimpleEntry<>(id, localDateTime));
@@ -126,20 +125,18 @@ public class ManchesterApiClient implements TireExchangeClient{
             }
         }
 
-
-
         return convertAndSort(dateTimes);
     }
 
     @Override
     public void bookTime(String bookId, String contactInformation) {
-        String baseUrl = exchangeSite.getApiBaseUrl() + "tire-change-times/" + bookId + "/booking";
+        String url = exchangeSite.getApiBaseUrl() + "tire-change-times/" + bookId + "/booking";
 
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("contactInformation", contactInformation);
 
         try {
-            restTemplate.put(baseUrl, requestBody);
+            restTemplate.put(url, requestBody);
         } catch (RestClientException e) {
             throw new RuntimeException("Failed to update booking time!", e);
         }

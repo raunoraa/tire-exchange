@@ -19,6 +19,7 @@ public class TireExchangeSitesProperties {
 
     @Getter
     public static class ExchangeSite {
+        private String siteId;
         private String name;
         private String address;
         private List<String> vehicleTypes;
