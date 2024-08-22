@@ -1,6 +1,7 @@
 package com.example.tire_exchange.service;
 
 import com.example.tire_exchange.config.TireExchangeSitesProperties;
+import com.example.tire_exchange.model.TimeSlot;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -43,8 +44,10 @@ public class LondonApiClient implements TireExchangeClient{
      * @param xmlResponse
      * @return
      */
-    private List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> parseXmlAndExtractTimes(String xmlResponse){
-        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> availableTimes = new ArrayList<>();
+    private List<TimeSlot> parseXmlAndExtractTimes(String xmlResponse){
+
+        List<TimeSlot> availableTimes = new ArrayList<>();
+
         try {
             // Set up document builder and parse XML string
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -70,8 +73,16 @@ public class LondonApiClient implements TireExchangeClient{
                 LocalDate date = LocalDate.parse(timeString, formatter);
                 LocalTime time = LocalTime.parse(timeString, formatter);
 
-                Map.Entry<LocalDate, LocalTime> dateTimePair = new AbstractMap.SimpleEntry<>(date, time);
-                availableTimes.add(new AbstractMap.SimpleEntry<>(uuid, dateTimePair));
+                TimeSlot timeSlot = new TimeSlot(
+                        uuid,
+                        date,
+                        time,
+                        exchangeSite.getSiteId(),
+                        exchangeSite.getName(),
+                        exchangeSite.getAddress(),
+                        exchangeSite.getVehicleTypes()
+                );
+                availableTimes.add(timeSlot);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse XML response", e);
@@ -79,29 +90,15 @@ public class LondonApiClient implements TireExchangeClient{
         return availableTimes;
     }
 
-    /**
-     *
-     * @param sortableList
-     */
-    private void sortDateTimes(List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> sortableList){
-        // Sort the list first by time and then by date
-        sortableList.sort(Comparator
-                .comparing((Map.Entry<String, Map.Entry<LocalDate, LocalTime>> entry) -> entry.getValue().getValue()) // Sort by time
-                .thenComparing(entry -> entry.getValue().getKey())); // Then by date
-    }
-
     @Override
-    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimes(String dateFrom, String dateTo) {
+    public List<TimeSlot> getAvailableTimes(String dateFrom, String dateTo) {
 
         String requestUrl = exchangeSite.getApiBaseUrl() + "tire-change-times/available?from=" + dateFrom + "&until=" + dateTo;
 
         // Fetch XML response from the API
         String response = restTemplate.getForObject(requestUrl, String.class);
 
-        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> formattedResponse = parseXmlAndExtractTimes(response);
-        sortDateTimes(formattedResponse);
-
-        return formattedResponse;
+        return parseXmlAndExtractTimes(response);
     }
 
     @Override

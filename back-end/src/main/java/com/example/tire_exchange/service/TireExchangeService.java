@@ -1,9 +1,11 @@
 package com.example.tire_exchange.service;
 
 
+import com.example.tire_exchange.model.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -22,56 +24,49 @@ public class TireExchangeService {
 
     /**
      * Helper method for merging the sorted lists in-place from client methods.
+     * I think we can assume that available times get request from api returns dates in ascending order.
      *
-     * @param list1 The list, to which we are adding elements into.
-     * @param list2 The list we are taking elements from.
+     * @param expandableList The list, to which we are adding elements into.
+     * @param secondList The list we are taking elements from.
      */
-    private void mergeSortedLists(List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> list1, List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> list2) {
+    private void mergeSortedLists(List<TimeSlot> expandableList, List<TimeSlot> secondList) {
 
         //If there are no elements in the first list yet, just add all the elements from the second list and return.
-        if (list1.isEmpty()){
-            list1.addAll(list2);
+        if (expandableList.isEmpty()){
+            expandableList.addAll(secondList);
             return;
         }
 
-        int i = list1.size() - 1;
-        int j = list2.size() - 1;
-        int k = list1.size() + list2.size() - 1;
+        int i = expandableList.size() - 1;
+        int j = secondList.size() - 1;
+        int k = expandableList.size() + secondList.size() - 1;
 
         // Expand list1 to accommodate all elements
-        list1.addAll(list2);
+        expandableList.addAll(secondList);
 
         // Merge lists starting from the end to avoid overwriting elements
         while (i >= 0 && j >= 0) {
 
-            LocalTime time1 = list1.get(i).getValue().getValue(); // Assuming getTime() returns LocalDateTime
-            LocalTime time2 = list2.get(j).getValue().getValue();
-
-            if (time1.isAfter(time2)) {
-                list1.set(k--, list1.get(i--));
-            } else if (time1.isBefore(time2)) {
-                list1.set(k--, list2.get(j--));
+            if (expandableList.get(i).compareTo(expandableList.get(j)) > 0) {
+                // When timeslot in the first list happens to be after the second list timeslot,
+                // add it to the current list position.
+                expandableList.set(k--, expandableList.get(i--));
             } else {
-                // If times are equal, compare by date
-                if (list1.get(i).getValue().getKey().isAfter(list2.get(j).getValue().getKey())) {
-                    list1.set(k--, list1.get(i--));
-                } else {
-                    list1.set(k--, list2.get(j--));
-                }
+                expandableList.set(k--, secondList.get(j--));
             }
         }
 
-        // If there are remaining elements in list2, copy them
+        // If there are remaining elements in secondList, copy them
         while (j >= 0) {
-            list1.set(k--, list2.get(j--));
+            expandableList.set(k--, secondList.get(j--));
         }
 
-        // Remaining elements in list1 are already in place
+        // Remaining elements in expandableList are already in place.
     }
 
-    // Gets available times from all the apis.
-    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to) {
-        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> allAvailableTimes = new ArrayList<>();
+    // Gets available times from all the exchange sites.
+    public List<TimeSlot> getAvailableTimesFromRange(String from, String to) {
+        List<TimeSlot> allAvailableTimes = new ArrayList<>();
 
         // Iterate over all clients and collect their available times
         for (TireExchangeClient client : tireExchangeClients) {
@@ -106,7 +101,7 @@ public class TireExchangeService {
     }
 
     // Gets available times only from certain exchange site(s).
-    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimesFromRange(String from, String to, List<String> siteIDs) {
+    public List<TimeSlot> getAvailableTimesFromRange(String from, String to, List<String> siteIDs) {
 
         List<TireExchangeClient> observableTireExchangeClients = new ArrayList<>();
 
@@ -115,7 +110,7 @@ public class TireExchangeService {
             observableTireExchangeClients.add(getCorrectClient(siteId));
         }
 
-        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> allAvailableTimes = new ArrayList<>();
+        List<TimeSlot> allAvailableTimes = new ArrayList<>();
 
         // Iterate over all clients and collect their available times
         for (TireExchangeClient client : observableTireExchangeClients) {

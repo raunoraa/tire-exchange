@@ -1,6 +1,7 @@
 package com.example.tire_exchange.service;
 
 import com.example.tire_exchange.config.TireExchangeSitesProperties;
+import com.example.tire_exchange.model.TimeSlot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,34 +48,6 @@ public class ManchesterApiClient implements TireExchangeClient{
     }
 
     /**
-     * Helper method for converting the dates and times to suitable format
-     * and sorting them in ascending order.
-     *
-     * @param dateTimes Dates and times as a list of pair objects where first element is ID as String
-     *                  and second element is LocalDateTime object.
-     * @return A list of sorted (ascending by date and time) pairs, where
-     *                  first el. in pair is date and second el. is time.
-     */
-    private List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> convertAndSort(List<Map.Entry<String, LocalDateTime>> dateTimes){
-
-        List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> dateTimePairs = new ArrayList<>();
-
-        for (Map.Entry<String, LocalDateTime> entry: dateTimes){
-            LocalDateTime dateTime = entry.getValue();
-            LocalDate localDate = dateTime.toLocalDate();
-            LocalTime localTime = dateTime.toLocalTime();
-            dateTimePairs.add(new AbstractMap.SimpleEntry<>("",new AbstractMap.SimpleEntry<>(localDate, localTime)));
-        }
-
-        // Sort the list first by time and then by date
-        dateTimePairs.sort(Comparator
-                .comparing((Map.Entry<String, Map.Entry<LocalDate, LocalTime>> entry) -> entry.getValue().getValue()) // Sort by time
-                .thenComparing(entry -> entry.getValue().getKey())); // Then by date
-
-        return dateTimePairs;
-    }
-
-    /**
      * Small helper method for converting the date string to LocalDate object.
      *
      * @param dateString Date as string.
@@ -95,37 +68,43 @@ public class ManchesterApiClient implements TireExchangeClient{
     }
 
     @Override
-    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimes(String dateFrom, String dateTo) {
+    public List<TimeSlot> getAvailableTimes(String dateFrom, String dateTo) {
 
         LocalDate from = convertStringToLocalDate(dateFrom);
         LocalDate to = convertStringToLocalDate(dateTo);
 
         String baseUrl = exchangeSite.getApiBaseUrl();
-        String requestUrl = baseUrl + "tire-change-times?from=" + from.toString();
+        String requestUrl = baseUrl + "tire-change-times?from=" + from;
 
         String response = restTemplate.getForObject(baseUrl + requestUrl, String.class);
         List<Map<String, Object>> responseList = parseJsonResponse(response);
 
         // Extract date and time strings from the JSON response and put them in the list of dateTimeStrings.
-        List<Map.Entry<String, LocalDateTime>> dateTimes = new ArrayList<>();
+        List<TimeSlot> dateTimes = new ArrayList<>();
 
         for (Map<String, Object> entry : responseList) {
 
-            // Only add available times to the list.
+            // Only add available timeslots to the list.
             Boolean available = (Boolean) entry.get("available");
             if (Boolean.TRUE.equals(available)) {
                 String timeString = (String) entry.get("time");
                 LocalDateTime localDateTime = convertToLocalDateTime(timeString);
-
-                // Only add such available times to the list, which are before the upper limit of the dates.
+                // Only add such available timeslots to the list, which are before the upper limit of the dates.
                 if (localDateTime.toLocalDate().isAfter(to)) {
-                    String id = entry.get("id").toString();
-                    dateTimes.add(new AbstractMap.SimpleEntry<>(id, localDateTime));
+                    TimeSlot timeSlot = new TimeSlot(
+                            entry.get("id").toString(),
+                            localDateTime.toLocalDate(),
+                            localDateTime.toLocalTime(),
+                            exchangeSite.getSiteId(),
+                            exchangeSite.getName(),
+                            exchangeSite.getAddress(),
+                            exchangeSite.getVehicleTypes()
+                    );
+                    dateTimes.add(timeSlot);
                 }
             }
         }
-
-        return convertAndSort(dateTimes);
+        return dateTimes;
     }
 
     @Override

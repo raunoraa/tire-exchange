@@ -1,5 +1,6 @@
 package com.example.tire_exchange.controller;
 
+import com.example.tire_exchange.model.TimeSlot;
 import com.example.tire_exchange.service.TireExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ public class TireExchangeController {
 
     // 1. Get available times from all sites within the specified date range
     @GetMapping("/available-times")
-    public List<Map.Entry<String, Map.Entry<LocalDate, LocalTime>>> getAvailableTimes(
+    public List<TimeSlot> getAvailableTimes(
             @RequestParam(name = "from", required = false) String fromDate,
             @RequestParam(name = "to", required = false) String toDate,
             @RequestParam(name = "sites", required = false) List<String> siteIDs) {
