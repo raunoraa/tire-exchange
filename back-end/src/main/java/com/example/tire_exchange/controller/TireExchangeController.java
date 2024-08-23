@@ -1,5 +1,6 @@
 package com.example.tire_exchange.controller;
 
+import com.example.tire_exchange.config.TireExchangeSitesProperties;
 import com.example.tire_exchange.model.TimeSlot;
 import com.example.tire_exchange.service.TireExchangeClient;
 import com.example.tire_exchange.service.TireExchangeService;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,35 +17,52 @@ import java.util.List;
  */
 @RestController
 public class TireExchangeController {
+
     @Autowired
     private TireExchangeService tireExchangeService;
 
     // Date formatter to convert string dates
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    // 1. Get available times from all sites within the specified date range
+    // Special get method for getting the data of defined tire exchange sites.
+    @GetMapping("/get-config")
+    public List<TireExchangeSitesProperties.ExchangeSite> exchangeSites(){
+        List<TireExchangeSitesProperties.ExchangeSite> exchangeSitesList = new ArrayList<>();
+
+        for (TireExchangeClient tireExchangeClient : tireExchangeService.tireExchangeClients){
+            exchangeSitesList.add(tireExchangeClient.getExchangeSite());
+        }
+
+        return exchangeSitesList;
+    }
+
+    // Get available times from all sites within the specified date range
     @GetMapping("/available-times")
     public List<TimeSlot> getAvailableTimes(
             @RequestParam(name = "from", required = false) String fromDate,
             @RequestParam(name = "to", required = false) String toDate,
-            @RequestParam(name = "sites", required = false) List<String> siteIDs) {
+            @RequestParam(name = "sites", required = false) List<String> siteIDs,
+            @RequestParam(name = "vehicleTypes", required = false) List<String> vehicleTypes,
+            @RequestParam(name = "vehicleTypeMatchMode", required = false, defaultValue = "any") String VehicleTypeMatchMode
+            ) {
 
-        // Set default date range if not provided
-        LocalDate from = fromDate != null ? LocalDate.parse(fromDate, dateFormatter) : LocalDate.now();
-        LocalDate to = toDate != null ? LocalDate.parse(toDate, dateFormatter) : from.plusDays(30);
-
-        // If sites are not provided, then fetch from all sites by default
-        if (siteIDs == null || siteIDs.isEmpty())
-            return tireExchangeService.getAvailableTimesFromRange(from.toString(), to.toString());
+        LocalDate from;
+        LocalDate to;
+        // Set default date range 30 days from current date (used when from or to dates are not provided,
+        // this however should normally not happen).
+        if (fromDate == null || toDate == null) {
+            from = LocalDate.now();
+            to = from.plusDays(30);
+        } else {
+            from = LocalDate.parse(fromDate, dateFormatter);
+            to = LocalDate.parse(toDate, dateFormatter);
+        }
 
         // Call the service method to fetch available times
-        return tireExchangeService.getAvailableTimesFromRange(from.toString(), to.toString(), siteIDs);
-
-
-        //return null;
+        return tireExchangeService.getAvailableTimesFromRange(from.toString(), to.toString(), siteIDs, vehicleTypes, VehicleTypeMatchMode);
     }
 
-    // 2. Book a time slot at a specific site
+    // Book a time slot at a specific site
     @PutMapping("/book-time")
     public void bookTime(
             @RequestParam("siteId") String siteId,

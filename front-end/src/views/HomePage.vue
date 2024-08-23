@@ -7,14 +7,14 @@
       <!-- Filter by Site -->
       <div class="filter-section">
         <h3>Filter by Site</h3>
-        <div v-for="site in sites" :key="site.id">
+        <div v-for="site in sites" :key="site.siteId">
           <input
             type="checkbox"
-            :id="'site-' + site.id"
-            :value="site.id"
+            :id="'site-' + site.siteId"
+            :value="site.siteId"
             v-model="selectedSiteIDs"
           />
-          <label :for="'site-' + site.id">{{ site.name }}</label>
+          <label :for="'site-' + site.siteId">{{ site.name }}</label>
         </div>
       </div>
 
@@ -26,13 +26,22 @@
           type="date"
           id="fromDate"
           v-model="fromDate"
+          :min="minDate"
+          :max="maxDate"
+          @change="validateFromDate"
         />
+        <p v-if="fromDateError" class="error-message">{{ fromDateError }}</p>
+
         <label for="toDate">To:</label>
         <input
           type="date"
           id="toDate"
           v-model="toDate"
+          :min="fromDate"
+          :max="maxDate"
+          @change="validateToDate"
         />
+        <p v-if="toDateError" class="error-message">{{ toDateError }}</p>
       </div>
 
       <!-- Filter by Vehicle Types -->
@@ -46,6 +55,13 @@
             v-model="selectedVehicleTypes"
           />
           <label :for="'type-' + type">{{ type }}</label>
+        </div>
+        <div>
+          <label>Match:</label>
+          <select v-model="vehicleTypeMatchMode">
+            <option value="any">Any</option>
+            <option value="all">All</option>
+          </select>
         </div>
       </div>
 
@@ -65,11 +81,11 @@
       <p>No available time slots.</p>
     </div>
   </div>
-  </template>
-  
+</template>
+
 <script>
   import TimeSlot from '../components/TimeSlot.vue';
-  
+
   export default {
     name: 'HomePage',
     components: {
@@ -82,48 +98,40 @@
         fromDate: '', // Date string in YYYY-MM-DD format
         toDate: '', // Date string in YYYY-MM-DD format
         selectedVehicleTypes: [], // Array of selected vehicle types
-        sites: [], // List of site objects { id: string, name: string }
-        vehicleTypes: [] // List of vehicle types
+        vehicleTypeMatchMode: 'any', // Default to "any"
+        sites: [], // List of site objects { siteId: string, name: string, address: string, vehicleTypes: array }
+        vehicleTypes: [], // List of unique vehicle types
+        minDate: '', // Minimum date for date pickers
+        maxDate: '', // Maximum date for date pickers
+        fromDateError: '', // Error message for invalid "From" date
+        toDateError: '' // Error message for invalid "To" date
       };
     },
     methods: {
       generateKey(slot) {
-        // Generate a unique key by combining timeSlotId and siteId
-        return `${slot.id}-${slot.siteId}`;
-      },
-      fetchTimeSlotsInitial() {        
-        
-        // Make an API request to fetch available time slots
-        fetch('http://localhost:8080/tire-exchange/available-times')
-          .then(response => response.json())
-          .then(data => {            
-            
-            // Populate the timeSlots array with the data from the backend
-            this.timeSlots = data;            
-            
-          })
-          .catch(error => {
-            console.error("Error fetching time slots:", error);
-          });
+        // Generate a unique key by combining timeSlotId and siteId        
+        return `${slot.timeSlotId}-${slot.siteId}`;
       },
       fetchTimeSlots() {
         // Construct query parameters based on filters
         const queryParams = new URLSearchParams();
-        if (this.selectedSiteIDs.length) {
-          queryParams.append('siteIDs', this.selectedSiteIDs.join(','));
-        }
         if (this.fromDate) {
-          queryParams.append('fromDate', this.fromDate);
+          queryParams.append('from', this.fromDate);
         }
         if (this.toDate) {
-          queryParams.append('toDate', this.toDate);
+          queryParams.append('to', this.toDate);
+        }
+        if (this.selectedSiteIDs.length) {
+          queryParams.append('sites', this.selectedSiteIDs.join(','));
         }
         if (this.selectedVehicleTypes.length) {
           queryParams.append('vehicleTypes', this.selectedVehicleTypes.join(','));
+          queryParams.append('vehicleTypeMatchMode', this.vehicleTypeMatchMode); // Add match mode
         }
 
         // Create the URL with query parameters
         const url = `http://localhost:8080/tire-exchange/available-times${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+        console.log(url);
 
         // Make an API request to fetch available time slots with filters
         fetch(url)
@@ -136,24 +144,64 @@
           });
       },
       applyFilters() {
-        this.fetchTimeSlots();
+        console.log("Filters applied!");
+        if (this.validateDates()) {
+          this.fetchTimeSlots();
+        }
       },
-      populateFilterOptions(data) {
-        // Extract unique sites and vehicle types from the data
-        this.sites = [...new Set(data.map(slot => ({
-          id: slot.siteId,
-          name: slot.siteName
-        })))];
-        this.vehicleTypes = [...new Set(data.flatMap(slot => slot.vehicleTypes))];
+      fetchConfig() {
+        // Fetch the exchange sites and vehicle types from the backend
+        fetch('http://localhost:8080/tire-exchange/get-config')
+          .then(response => response.json())
+          .then(data => {
+            this.sites = data.map(site => ({
+              siteId: site.siteId,
+              name: site.name,
+              address: site.address,
+              vehicleTypes: site.vehicleTypes
+            }));
+            // Extract unique vehicle types across all exchange sites
+            const vehicleTypesSet = new Set();
+            data.forEach(site => {
+              site.vehicleTypes.forEach(type => vehicleTypesSet.add(type));
+            });
+            this.vehicleTypes = Array.from(vehicleTypesSet);
+          })
+          .catch(error => {
+            console.error("Error fetching config:", error);
+          });
+      },
+      initializeDates() {
+        const today = new Date().toISOString().split('T')[0];
+        const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        this.fromDate = today;
+        this.toDate = futureDate;
+      },
+      validateDates() {
+        this.fromDateError = '';
+        this.toDateError = '';
+        if (this.fromDate && new Date(this.fromDate) > new Date(this.toDate)) {
+          this.fromDateError = "The 'From' date cannot be later than the 'To' date.";
+          this.fromDate = this.toDate; // Adjust the fromDate
+        }
+        if (this.toDate && new Date(this.toDate) < new Date(this.fromDate)) {
+          this.toDateError = "The 'To' date cannot be earlier than the 'From' date.";
+          this.toDate = this.fromDate; // Adjust the toDate
+        }
+        return !this.fromDateError && !this.toDateError;
       }
     },
     mounted() {
-      // Fetch the time slots when the component is mounted
-      this.fetchTimeSlotsInitial();
+      // Fetch the configuration data when the component is mounted
+      this.fetchConfig();
+
+      // Set initial date range and fetch time slots
+      this.initializeDates();
+      this.fetchTimeSlots();
     }
   };
 </script>
-  
+
 <style scoped>
   .scrollable-container {
     width: 80vh;
@@ -162,5 +210,18 @@
     border: 1px solid #ddd; /* Optional: adds a border for visual separation */
     padding: 10px; /* Optional: adds padding inside the container */
   }
+
+  .filters {
+    margin-bottom: 20px; /* Add some space below the filters */
+  }
+
+  .filter-section {
+    margin-bottom: 10px;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
 </style>
-  
