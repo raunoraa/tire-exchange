@@ -2,9 +2,11 @@ package com.example.tire_exchange.service;
 
 import com.example.tire_exchange.config.TireExchangeSitesProperties;
 import com.example.tire_exchange.model.TimeSlot;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -21,15 +23,17 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Service
 public class LondonApiClient implements TireExchangeClient{
 
     private final RestTemplate restTemplate;
     private final TireExchangeSitesProperties.ExchangeSite exchangeSite;
 
+    @Autowired
     public LondonApiClient(RestTemplate restTemplate, TireExchangeSitesProperties properties) {
         this.restTemplate = restTemplate;
         this.exchangeSite = properties.getExchangeSites().stream()
-                .filter(s -> s.getSiteId().equals("2"))
+                .filter(s -> s.getSiteId().equals("1"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("London site not found!"));
     }

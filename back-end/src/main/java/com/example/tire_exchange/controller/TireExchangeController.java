@@ -1,18 +1,14 @@
 package com.example.tire_exchange.controller;
 
 import com.example.tire_exchange.model.TimeSlot;
+import com.example.tire_exchange.service.TireExchangeClient;
 import com.example.tire_exchange.service.TireExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class' methods will be used in front-end to fetch the back-end data.
@@ -42,10 +38,13 @@ public class TireExchangeController {
 
         // Call the service method to fetch available times
         return tireExchangeService.getAvailableTimesFromRange(from.toString(), to.toString(), siteIDs);
+
+
+        //return null;
     }
 
     // 2. Book a time slot at a specific site
-    @PostMapping("/book-time")
+    @PutMapping("/book-time")
     public void bookTime(
             @RequestParam("siteId") String siteId,
             @RequestParam("bookId") String bookId,

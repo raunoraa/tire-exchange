@@ -1,4 +1,4 @@
-# tire-exchange-frontend
+# front-end
 
 ## Project setup
 ```

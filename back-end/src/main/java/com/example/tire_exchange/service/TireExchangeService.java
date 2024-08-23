@@ -9,13 +9,14 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class TireExchangeService {
 
-    private final List<TireExchangeClient> tireExchangeClients;
+    public final List<TireExchangeClient> tireExchangeClients;
 
     @Autowired
     public TireExchangeService(List<TireExchangeClient> tireExchangeClients) {
@@ -41,13 +42,13 @@ public class TireExchangeService {
         int j = secondList.size() - 1;
         int k = expandableList.size() + secondList.size() - 1;
 
-        // Expand list1 to accommodate all elements
+        // Expand list1 to accommodate all elements (basically placeholders at this state).
         expandableList.addAll(secondList);
 
         // Merge lists starting from the end to avoid overwriting elements
         while (i >= 0 && j >= 0) {
 
-            if (expandableList.get(i).compareTo(expandableList.get(j)) > 0) {
+            if (expandableList.get(i).compareTo(secondList.get(j)) > 0) {
                 // When timeslot in the first list happens to be after the second list timeslot,
                 // add it to the current list position.
                 expandableList.set(k--, expandableList.get(i--));
@@ -72,6 +73,8 @@ public class TireExchangeService {
         for (TireExchangeClient client : tireExchangeClients) {
             mergeSortedLists(allAvailableTimes, client.getAvailableTimes(from, to));
         }
+
+        //Collections.sort(allAvailableTimes);
 
         return allAvailableTimes;
     }
@@ -116,6 +119,11 @@ public class TireExchangeService {
         for (TireExchangeClient client : observableTireExchangeClients) {
             mergeSortedLists(allAvailableTimes, client.getAvailableTimes(from, to));
         }
+
+        // Since we can assume that APIs return data in a sorted manner already,
+        // then merging (time complexity of it is roughly: number_of_apis * (first_list_size  + second_list_size))
+        // has less time complexity than collections.sort (time complexity roughly: O(n*Log(n)), where n is
+        // the sum of available times provided by all the APIs).
 
         return allAvailableTimes;
     }

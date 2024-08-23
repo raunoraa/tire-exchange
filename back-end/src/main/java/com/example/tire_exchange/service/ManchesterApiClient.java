@@ -5,6 +5,8 @@ import com.example.tire_exchange.model.TimeSlot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,16 +17,18 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Service
 public class ManchesterApiClient implements TireExchangeClient{
 
     private final RestTemplate restTemplate;
     private final TireExchangeSitesProperties.ExchangeSite exchangeSite;
     private final ObjectMapper objectMapper;
 
+    @Autowired
     public ManchesterApiClient(RestTemplate restTemplate, TireExchangeSitesProperties properties, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.exchangeSite = properties.getExchangeSites().stream()
-                .filter(s -> s.getSiteId().equals("1"))
+                .filter(s -> s.getSiteId().equals("2"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Manchester site not found!"));
         this.objectMapper = objectMapper;
@@ -76,7 +80,7 @@ public class ManchesterApiClient implements TireExchangeClient{
         String baseUrl = exchangeSite.getApiBaseUrl();
         String requestUrl = baseUrl + "tire-change-times?from=" + from;
 
-        String response = restTemplate.getForObject(baseUrl + requestUrl, String.class);
+        String response = restTemplate.getForObject(requestUrl, String.class);
         List<Map<String, Object>> responseList = parseJsonResponse(response);
 
         // Extract date and time strings from the JSON response and put them in the list of dateTimeStrings.
@@ -86,11 +90,12 @@ public class ManchesterApiClient implements TireExchangeClient{
 
             // Only add available timeslots to the list.
             Boolean available = (Boolean) entry.get("available");
+
             if (Boolean.TRUE.equals(available)) {
                 String timeString = (String) entry.get("time");
                 LocalDateTime localDateTime = convertToLocalDateTime(timeString);
                 // Only add such available timeslots to the list, which are before the upper limit of the dates.
-                if (localDateTime.toLocalDate().isAfter(to)) {
+                if (localDateTime.toLocalDate().isBefore(to)) {
                     TimeSlot timeSlot = new TimeSlot(
                             entry.get("id").toString(),
                             localDateTime.toLocalDate(),
