@@ -1,12 +1,14 @@
 package com.example.tire_exchange.service;
 
 import com.example.tire_exchange.config.TireExchangeSitesProperties;
+import com.example.tire_exchange.model.BookingResponse;
 import com.example.tire_exchange.model.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -106,7 +108,7 @@ public class LondonApiClient implements TireExchangeClient{
     }
 
     @Override
-    public void bookTime(String bookId, String contactInformation) {
+    public BookingResponse bookTime(String bookId, String contactInformation) {
         String url = exchangeSite.getApiBaseUrl() + "tire-change-times/" + bookId + "/booking";
 
         // Construct the XML body as a string
@@ -122,7 +124,19 @@ public class LondonApiClient implements TireExchangeClient{
         // Wrap the XML body in an HttpEntity with the headers
         HttpEntity<String> requestEntity = new HttpEntity<>(xmlBody, headers);
 
-        // Send the PUT request with RestTemplate
-        restTemplate.put(url, requestEntity);
+        try {
+            // Perform the HTTP request
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
+            // Extract the status code
+            int statusCode = response.getStatusCode().value();
+            return new BookingResponse(statusCode);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            // Handle client and server errors.
+            int statusCode = e.getStatusCode().value();
+            return new BookingResponse(statusCode);
+        } catch (RestClientException e) {
+            // Handle other RestClientExceptions
+            return new BookingResponse(500);
+        }
     }
 }

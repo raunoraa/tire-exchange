@@ -1,6 +1,7 @@
 package com.example.tire_exchange.controller;
 
 import com.example.tire_exchange.config.TireExchangeSitesProperties;
+import com.example.tire_exchange.model.BookingResponse;
 import com.example.tire_exchange.model.TimeSlot;
 import com.example.tire_exchange.service.TireExchangeClient;
 import com.example.tire_exchange.service.TireExchangeService;
@@ -64,12 +65,12 @@ public class TireExchangeController {
 
     // Book a time slot at a specific site
     @PutMapping("/book-time")
-    public void bookTime(
-            @RequestParam("siteId") String siteId,
-            @RequestParam("bookId") String bookId,
-            @RequestParam("contactInformation") String contactInformation) {
+    public BookingResponse bookTime(
+            @RequestParam(name = "siteId") String siteId,
+            @RequestParam(name = "bookId") String bookId,
+            @RequestParam(name = "contactInformation") String contactInformation) {
 
         // Call the service method to book the time slot
-        tireExchangeService.bookTime(siteId, bookId, contactInformation);
+        return tireExchangeService.bookTime(siteId, bookId, contactInformation);
     }
 }
