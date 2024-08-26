@@ -2,6 +2,7 @@ package com.example.tire_exchange.service;
 
 
 import com.example.tire_exchange.model.BookingResponse;
+import com.example.tire_exchange.model.ContactInformation;
 import com.example.tire_exchange.model.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -128,9 +129,9 @@ public class TireExchangeService {
         return allAvailableTimes;
     }
 
-    public BookingResponse bookTime(String siteId, String bookId, String contactInformation){
+    public BookingResponse bookTime(String siteId, String bookId, ContactInformation contactInformation){
         TireExchangeClient client = getCorrectClient(siteId);
-        return client.bookTime(bookId, contactInformation);
+        return client.bookTime(bookId, contactInformation.toString());
     }
 
 }

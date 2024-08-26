@@ -5,10 +5,17 @@
         <p>Exchange Site: {{ timeSlot.siteName }}</p>
         <p>Address: {{ timeSlot.siteAddress }}</p>
         <p>Serviceable Vehicle Types: {{ timeSlot.vehicleTypes.join(', ') }}</p>
+  
+        <h4>Provided Contact Information</h4>
+        <p>Full Name: {{ timeSlot.contactInformation.fullName }}</p>
+        <p>Phone Number: {{ timeSlot.contactInformation.phoneNumber }}</p>
+        <p>Email: {{ timeSlot.contactInformation.email }}</p>
+  
         <button @click="eraseSlot" class="erase-btn">Erase</button>
       </div>
     </div>
   </template>
+  
   
   <script>
   export default {
@@ -42,11 +49,12 @@
     },
     methods: {
       eraseSlot() {
-        this.$emit('erase', this.timeSlot); // Emit an event to notify parent to remove the slot
+        this.$emit('erase', this.timeSlot);
       },
     },
   };
   </script>
+  
   
   <style scoped>
   .time-slot {
@@ -57,7 +65,7 @@
     border: 1px solid #ddd;
     padding: 10px;
     background-color: #f9f9f9;
-    position: relative; /* Needed for positioning the erase button */
+    position: relative;
   }
   
   .erase-btn {
@@ -75,4 +83,5 @@
     background-color: #c82333;
   }
   </style>
+  
   
