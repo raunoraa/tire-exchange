@@ -66,6 +66,7 @@ public class ManchesterApiClient implements TireExchangeClient {
         return LocalDate.parse(dateString, formatter);
     }
 
+    // Helper method for parsing the JSON response and converting it to suitable Java object.
     private List<Map<String, Object>> parseJsonResponse(String jsonResponse) {
         try {
             return objectMapper.readValue(jsonResponse, new TypeReference<>() {

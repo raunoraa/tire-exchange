@@ -85,6 +85,8 @@ public class TireExchangeService {
         return tireExchangeClient;
     }
 
+    // Helper method for finding out if the given client matches vehicle types
+    // provided by the user.
     private boolean matchesVehicleTypes(TireExchangeClient client, List<String> vehicleTypes, String vehicleTypeMatchMode) {
         Set<String> clientVehicleTypes = new HashSet<>(client.getExchangeSite().getVehicleTypes());
 
@@ -125,6 +127,7 @@ public class TireExchangeService {
         return allAvailableTimes;
     }
 
+    // Method for booking a time.
     public BookingResponse bookTime(String siteId, String bookId, ContactInformation contactInformation) {
         TireExchangeClient client = getCorrectClient(siteId);
         return client.bookTime(bookId, contactInformation.toString());

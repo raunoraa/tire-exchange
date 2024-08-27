@@ -45,10 +45,7 @@ public class LondonApiClient implements TireExchangeClient {
         return exchangeSite;
     }
 
-    /**
-     * @param xmlResponse
-     * @return
-     */
+    // Helper method for parsing the xml response and extracting the necessary timeslot information.
     private List<TimeSlot> parseXmlAndExtractTimes(String xmlResponse) {
 
         List<TimeSlot> availableTimes = new ArrayList<>();

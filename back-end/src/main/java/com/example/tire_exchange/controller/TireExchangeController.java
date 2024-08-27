@@ -38,7 +38,8 @@ public class TireExchangeController {
         return exchangeSitesList;
     }
 
-    // Get available times from all sites within the specified date range
+    // Get available times based on defined date range, sites and vehicle types.
+    // If no sites or vehicle types are provided, it will just fetch from all the sites.
     @GetMapping("/available-times")
     public List<TimeSlot> getAvailableTimes(
             @RequestParam(name = "from", required = false) String fromDate,
@@ -64,7 +65,7 @@ public class TireExchangeController {
         return tireExchangeService.getAvailableTimesFromRange(from.toString(), to.toString(), siteIDs, vehicleTypes, VehicleTypeMatchMode);
     }
 
-    // Book a time slot at a specific site
+    // Book a time slot at a specific site, while providing contact information.
     @PostMapping("/book-time")
     public BookingResponse bookTime(
             @RequestParam(name = "siteId") String siteId,
