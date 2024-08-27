@@ -7,11 +7,7 @@ import com.example.tire_exchange.model.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TireExchangeService {
@@ -28,12 +24,12 @@ public class TireExchangeService {
      * I think we can assume that available times get request from api returns dates in ascending order.
      *
      * @param expandableList The list, to which we are adding elements into.
-     * @param secondList The list we are taking elements from.
+     * @param secondList     The list we are taking elements from.
      */
     private void mergeSortedLists(List<TimeSlot> expandableList, List<TimeSlot> secondList) {
 
         //If there are no elements in the first list yet, just add all the elements from the second list and return.
-        if (expandableList.isEmpty()){
+        if (expandableList.isEmpty()) {
             expandableList.addAll(secondList);
             return;
         }
@@ -129,7 +125,7 @@ public class TireExchangeService {
         return allAvailableTimes;
     }
 
-    public BookingResponse bookTime(String siteId, String bookId, ContactInformation contactInformation){
+    public BookingResponse bookTime(String siteId, String bookId, ContactInformation contactInformation) {
         TireExchangeClient client = getCorrectClient(siteId);
         return client.bookTime(bookId, contactInformation.toString());
     }

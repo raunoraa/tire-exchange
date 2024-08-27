@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-public class LondonApiClient implements TireExchangeClient{
+public class LondonApiClient implements TireExchangeClient {
 
     private final RestTemplate restTemplate;
     private final TireExchangeSitesProperties.ExchangeSite exchangeSite;
@@ -46,11 +46,10 @@ public class LondonApiClient implements TireExchangeClient{
     }
 
     /**
-     *
      * @param xmlResponse
      * @return
      */
-    private List<TimeSlot> parseXmlAndExtractTimes(String xmlResponse){
+    private List<TimeSlot> parseXmlAndExtractTimes(String xmlResponse) {
 
         List<TimeSlot> availableTimes = new ArrayList<>();
 

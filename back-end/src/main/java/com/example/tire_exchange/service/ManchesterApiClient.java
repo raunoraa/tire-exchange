@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-public class ManchesterApiClient implements TireExchangeClient{
+public class ManchesterApiClient implements TireExchangeClient {
 
     private final RestTemplate restTemplate;
     private final TireExchangeSitesProperties.ExchangeSite exchangeSite;
@@ -48,7 +48,7 @@ public class ManchesterApiClient implements TireExchangeClient{
      * @param dateTimeString Input datetime string.
      * @return LocalDatetime object based on the input datetime string.
      */
-    private LocalDateTime convertToLocalDateTime(String dateTimeString){
+    private LocalDateTime convertToLocalDateTime(String dateTimeString) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
         ZonedDateTime date = ZonedDateTime.parse(dateTimeString, formatter);
         return date.toLocalDateTime();
@@ -60,15 +60,16 @@ public class ManchesterApiClient implements TireExchangeClient{
      * @param dateString Date as string.
      * @return LocalDate object based on the date given as string.
      */
-    private LocalDate convertStringToLocalDate(String dateString){
+    private LocalDate convertStringToLocalDate(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
         return LocalDate.parse(dateString, formatter);
     }
 
-    private List<Map<String, Object>> parseJsonResponse(String jsonResponse){
+    private List<Map<String, Object>> parseJsonResponse(String jsonResponse) {
         try {
-            return objectMapper.readValue(jsonResponse, new TypeReference<>() {});
+            return objectMapper.readValue(jsonResponse, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to parse JSON response!", e);
         }

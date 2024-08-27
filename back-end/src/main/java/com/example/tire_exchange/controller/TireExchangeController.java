@@ -28,10 +28,10 @@ public class TireExchangeController {
 
     // Special get method for getting the data of defined tire exchange sites.
     @GetMapping("/get-config")
-    public List<TireExchangeSitesProperties.ExchangeSite> exchangeSites(){
+    public List<TireExchangeSitesProperties.ExchangeSite> exchangeSites() {
         List<TireExchangeSitesProperties.ExchangeSite> exchangeSitesList = new ArrayList<>();
 
-        for (TireExchangeClient tireExchangeClient : tireExchangeService.tireExchangeClients){
+        for (TireExchangeClient tireExchangeClient : tireExchangeService.tireExchangeClients) {
             exchangeSitesList.add(tireExchangeClient.getExchangeSite());
         }
 
@@ -46,7 +46,7 @@ public class TireExchangeController {
             @RequestParam(name = "sites", required = false) List<String> siteIDs,
             @RequestParam(name = "vehicleTypes", required = false) List<String> vehicleTypes,
             @RequestParam(name = "vehicleTypeMatchMode", required = false, defaultValue = "any") String VehicleTypeMatchMode
-            ) {
+    ) {
 
         LocalDate from;
         LocalDate to;
