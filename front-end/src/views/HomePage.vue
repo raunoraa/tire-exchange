@@ -111,6 +111,7 @@ import TimeSlot from '../components/TimeSlot.vue';
 import BookedTime from '../components/BookedTime.vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import config from '../config/config.js';
 
 export default {
   name: 'HomePage',
@@ -137,6 +138,7 @@ export default {
       filtersVisible: false,
       isLoading: false,
       filtersApplied: false,
+      apiBaseUrl: config.apiBaseUrl,
     };
   },
   computed: {
@@ -166,8 +168,8 @@ export default {
         queryParams.append('vehicleTypeMatchMode', this.vehicleTypeMatchMode);
       }
 
-      const url = `http://localhost:8080/tire-exchange/available-times${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      console.log('Fetching available time slots from URL:', url);
+      const url = `${this.apiBaseUrl}/available-times${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      //console.log('Fetching available time slots from URL:', url);
 
       fetch(url)
         .then(response => response.json())
@@ -209,7 +211,7 @@ export default {
       }
     },
     fetchConfig() {
-      fetch('http://localhost:8080/tire-exchange/get-config')
+      fetch(`${this.apiBaseUrl}/get-config`)
         .then(response => response.json())
         .then(data => {
           this.sites = data.map(site => ({

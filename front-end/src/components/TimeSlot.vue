@@ -68,6 +68,8 @@
   </template>
   
   <script>
+    import config from '../config/config.js';
+
   export default {
     name: "TimeSlot",
     props: {
@@ -89,7 +91,8 @@
         bookingMessage: "",
         isBooking: false,
         fadeOut: false,
-        isClicked: false
+        isClicked: false,
+        apiBaseUrl: config.apiBaseUrl,
       };
     },
     computed: {
@@ -132,7 +135,7 @@
         }
   
         fetch(
-          `http://localhost:8080/tire-exchange/book-time?siteId=${siteId}&bookId=${timeSlotId}`,
+          `${this.apiBaseUrl}/book-time?siteId=${siteId}&bookId=${timeSlotId}`,
           {
             method: "POST",
             headers: {
