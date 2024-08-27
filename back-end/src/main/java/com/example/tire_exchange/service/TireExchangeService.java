@@ -99,7 +99,7 @@ public class TireExchangeService {
         }
     }
 
-    // Gets available times only from certain exchange site(s).
+    // Gets available times according to the filters applied in the front-end.
     public List<TimeSlot> getAvailableTimesFromRange(String from, String to, List<String> siteIDs, List<String> vehicleTypes, String vehicleTypeMatchMode) {
 
         // If no siteIDs are provided, fetch from all the sites by default.

@@ -1,12 +1,9 @@
 package com.example.tire_exchange.model;
 
-import lombok.Getter;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-@Getter
 public record TimeSlot(String timeSlotId, LocalDate date, LocalTime time, String siteId, String siteName,
                        String siteAddress, List<String> vehicleTypes) implements Comparable<TimeSlot> {
 
