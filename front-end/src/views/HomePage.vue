@@ -1,10 +1,10 @@
 <template>
-  <div class="homepage">
-    <h2>Time Slots</h2>
+  <div class="homepage">    
 
     <!-- Toggle Switch for View Selection -->
     <div class="view-toggle">
-      <button @click="viewMode = 'available'" :class="{ active: viewMode === 'available' }">Available Time Slots</button>
+      <button @click="viewMode = 'available'" :class="{ active: viewMode === 'available' }">Available Time
+        Slots</button>
       <button @click="viewMode = 'booked'" :class="{ active: viewMode === 'booked' }">Booked Time Slots</button>
     </div>
 
@@ -12,11 +12,10 @@
     <div class="content-container">
       <!-- Filters Section (Visible only in available mode) -->
       <div v-if="viewMode === 'available'" class="filters-container">
-        <!-- Filter by Site -->
         <div class="filter-results-section">
           <div class="filters-heading" @click="toggleFilters">
             Filter Results
-            <span class="toggle-icon">{{ filtersVisible ? 'v' : '>' }}</span>
+            <span class="toggle-icon">{{ filtersVisible ? '⇓' : '⇒' }}</span>
           </div>
           <div v-if="filtersVisible" class="filters">
             <!-- Filter by Site -->
@@ -24,12 +23,7 @@
               <h4>Include Sites</h4>
               <div class="filter-group">
                 <div v-for="site in sites" :key="site.siteId" class="filter-item">
-                  <input
-                    type="checkbox"
-                    :id="'site-' + site.siteId"
-                    :value="site.siteId"
-                    v-model="selectedSiteIDs"
-                  />
+                  <input type="checkbox" :id="'site-' + site.siteId" :value="site.siteId" v-model="selectedSiteIDs" />
                   <label :for="'site-' + site.siteId">{{ site.name }}</label>
                 </div>
               </div>
@@ -41,28 +35,14 @@
               <div class="filter-group">
                 <div class="date-picker-group">
                   <label for="fromDate">From:</label>
-                  <VueDatePicker
-                    v-model="fromDate"
-                    :min-date="minDate"
-                    format="dd/MM/yyyy"
-                    placeholder="Select a date"
-                    @input="handleFromDateChange"
-                    :enable-time-picker="false"
-                    model-type="yyyy-MM-dd"
-                  />
+                  <VueDatePicker v-model="fromDate" :min-date="minDate" :teleport="true" format="dd/MM/yyyy" placeholder="Select a date"
+                    @input="handleFromDateChange" :enable-time-picker="false" model-type="yyyy-MM-dd" />
                   <p v-if="fromDateError" class="error-message">{{ fromDateError }}</p>
                 </div>
                 <div class="date-picker-group">
                   <label for="toDate">To:</label>
-                  <VueDatePicker
-                    v-model="toDate"
-                    :min-date="fromDate"
-                    format="dd/MM/yyyy"
-                    placeholder="Select a date"
-                    @input="handleToDateChange"
-                    :enable-time-picker="false"
-                    model-type="yyyy-MM-dd"
-                  />
+                  <VueDatePicker v-model="toDate" :min-date="fromDate" :teleport="true" format="dd/MM/yyyy" placeholder="Select a date"
+                    @input="handleToDateChange" :enable-time-picker="false" model-type="yyyy-MM-dd" />
                   <p v-if="toDateError" class="error-message">{{ toDateError }}</p>
                 </div>
               </div>
@@ -71,62 +51,55 @@
             <!-- Filter by Vehicle Types -->
             <div class="filter-section">
               <h4>Include Vehicle Types</h4>
-              <div class="filter-group">
-                <div v-for="type in vehicleTypes" :key="type" class="filter-item">
-                  <input
-                    type="checkbox"
-                    :id="'type-' + type"
-                    :value="type"
-                    v-model="selectedVehicleTypes"
-                  />
-                  <label :for="'type-' + type">{{ type }}</label>
-                </div>
-              </div>
               <div class="match-mode">
-                <label>Match:</label>
+                <label>Match: </label>
                 <select v-model="vehicleTypeMatchMode">
                   <option value="any">Any</option>
                   <option value="all">All</option>
                 </select>
               </div>
+              <div class="filter-group">
+                <div v-for="type in vehicleTypes" :key="type" class="filter-item">
+                  <input type="checkbox" :id="'type-' + type" :value="type" v-model="selectedVehicleTypes" />
+                  <label :for="'type-' + type">{{ type }}</label>
+                </div>
+              </div>              
             </div>
 
             <!-- Apply Filters Button -->
             <div class="apply-filters">
-              <button @click="applyFilters" class="apply-filters-button">Apply Filters</button>
+              <button @click="applyFilters" class="apply-filters-button" ref="applyButton">Apply Filters</button>
+              <span v-if="filtersApplied" class="filters-applied-message" ref="filtersAppliedMessage">Filters Applied!</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Results Heading -->
-        <div class="results-section">
-          <h3>Results</h3>
-          <div v-if="timeSlots.length > 0" class="scrollable-container">
-            <TimeSlot
-              v-for="slot in timeSlots"
-              :key="generateKey(slot)"
-              :time-slot="slot"
-              :show-slot="!slot.fadeOut"
-              @booked="handleBookedSlot"
-            />
-          </div>
-          <div v-else>
-            <p>No available time slots.</p>
           </div>
         </div>
       </div>
 
+      <!-- Results Section -->
+      <div v-if="viewMode === 'available'" class="results-section">
+        <h3 class="results-heading">Results</h3>
+        <div v-if="isLoading" class="slots-info-container">
+          <p class="slots-info-message">Fetching the data...</p>
+        </div>
+        <div v-else-if="timeSlots.length > 0" class="scrollable-container">
+          <TimeSlot v-for="slot in timeSlots" :key="generateKey(slot)" :time-slot="slot" :show-slot="!slot.fadeOut"
+            @booked="handleBookedSlot" />
+        </div>
+        <div v-else class="slots-info-container">
+          <p class="slots-info-message">No available time slots found.</p>
+        </div>
+      </div>
+
+
       <!-- Booked Time Slots Section (Visible only in booked mode) -->
-      <div v-if="viewMode === 'booked'" class="scrollable-container booked-time-slots">
-        <h2>Booked Time Slots</h2>
-        <BookedTime
-          v-for="slot in sortedBookedSlots"
-          :key="generateKey(slot)"
-          :time-slot="slot"
-          @erase="removeBookedSlot"
-        />
+      <div v-if="viewMode === 'booked'" class="booked-time-slots">
+        <h2 class="booked-times-heading">My Booked Time Slots</h2>
+        <div class="scrollable-container">
+        <BookedTime v-for="slot in sortedBookedSlots" :key="generateKey(slot)" :time-slot="slot"
+          @erase="removeBookedSlot" />
         <div v-if="!bookedSlots.length">
-          <p>No booked time slots.</p>
+          <p class="booked-slots-info">No booked time slots.</p>
+        </div>
         </div>
       </div>
     </div>
@@ -161,7 +134,9 @@ export default {
       fromDateError: '',
       toDateError: '',
       viewMode: 'available',
-      filtersVisible: false // New property to handle filter section visibility
+      filtersVisible: false,
+      isLoading: false,
+      filtersApplied: false,
     };
   },
   computed: {
@@ -178,6 +153,9 @@ export default {
       return `${slot.timeSlotId}-${slot.date}-${slot.time}-${slot.siteId}`;
     },
     fetchTimeSlots() {
+
+      this.isLoading = true;
+
       const queryParams = new URLSearchParams();
 
       if (this.fromDate) queryParams.append('from', this.fromDate);
@@ -195,9 +173,11 @@ export default {
         .then(response => response.json())
         .then(data => {
           this.timeSlots = data;
+          this.isLoading = false;
         })
         .catch(error => {
           console.error("Error fetching time slots:", error);
+          this.Loading = false;
         });
     },
     applyFilters() {
@@ -207,6 +187,25 @@ export default {
 
       if (this.validateDates()) {
         this.fetchTimeSlots();
+        this.filtersApplied = true;
+        // Set up an event listener to hide the message when clicking outside
+        document.addEventListener('click', this.hideFiltersAppliedMessage);
+      } else {
+        this.filtersApplied = false;
+      }
+    },
+    hideFiltersAppliedMessage(event){
+      // Ensure the click is outside the button and the message span
+      const applyButton = this.$refs.applyButton;
+      const messageSpan = this.$refs.filtersAppliedMessage;
+
+      if (
+        applyButton && !applyButton.contains(event.target) &&
+        messageSpan && !messageSpan.contains(event.target)
+      ) {
+        this.filtersApplied = false;
+        // Remove the event listener
+        document.removeEventListener('click', this.hideFiltersAppliedMessage);
       }
     },
     fetchConfig() {
@@ -308,6 +307,7 @@ export default {
 .homepage {
   padding: 10px;
   padding-top: 0;
+  width: 100vw;
 }
 
 h2 {
@@ -318,15 +318,18 @@ h2 {
 .view-toggle {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin: 20px;
+  margin-bottom: 40px;
 }
 
 .view-toggle button {
-  padding: 10px 15px;
+  padding: 16px 26px;
   margin: 0 5px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: pointer;  
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 .view-toggle .active {
@@ -334,17 +337,29 @@ h2 {
   color: white;
 }
 
+.slots-info-container {
+  justify-content: center;
+}
+
+.slots-info-message {
+  color: black;
+  text-align: center;
+  font-size: 1.25rem;
+  margin-top: 10px;
+}
+
 /* Container for filters and time slots */
 .content-container {
+  justify-content: center;
   display: flex;  
   gap: 30px;
+  align-items: flex-start;
 }
 
 /* Filters Section */
 .filters-container {
   display: flex;
-  flex-direction: column;
-  width: 300px;
+  flex-direction: column;  
 }
 
 .filter-results-section {
@@ -352,22 +367,29 @@ h2 {
   border-radius: 8px;
   padding: 10px;
   transition: max-height 0.3s ease;
+
+  background-color: rgb(208, 252, 197);
 }
 
 .filters-heading {
-  font-size: 1.5em; /* Same font size as Results heading */
   font-weight: bold;
-  color: black; /* Set text color to black */
+  color: black;
   text-align: center;
   cursor: pointer;
+
+  padding: 10px;  
+  background-color: rgb(255, 218, 218);
+  border-radius: 4px;
 }
 
 .filters-heading:hover {
-  color: #0056b3;
+  color: #c2d4e7;
+  background-color: rgb(172, 131, 131);
 }
 
 .filters-heading:active {
-  color: #003d7a;
+  color: #ecf0f5;
+  background-color: rgb(99, 75, 75);
 }
 
 .filters {
@@ -376,51 +398,158 @@ h2 {
   transition: max-height 0.3s ease;
 }
 
-.filters-container .filters {
-  max-height: 500px; /* Adjust height based on the content */
+.filters-applied-message{
+  margin-left: 10px;
+  color: green;
 }
 
+.filters-container .filters {
+  max-height: 700px;
+  margin:5px;
+  margin-top: 0;
+}
+
+.filter-item{
+  margin-bottom:10px;
+}
+
+.date-picker-group{
+  margin-right: 10px;  
+  margin-bottom: 10px;  
+}
+
+.filter-section{
+  margin-top: 35px;
+  margin-bottom: 30px;  
+}
+
+.match-mode{  
+  margin-bottom: 10px;
+}
+
+.match-mode select{
+  font-size: 0.9rem;
+}
+
+.apply-filters{
+  margin: 10px;
+}
+
+.apply-filters button{
+  padding: 10px 15px;  
+  border: 1px solid black;
+  border-radius: 4px;
+  cursor: pointer;  
+  font-weight: bold;
+}
+
+
 .results-section {
-  flex: 1;  
-  /* You can probably modify the width with media queries properly. Use vw and vh for adjusting it. */
+  width: 40vw;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.results-heading {
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 10px;
+  margin-bottom: 15px;
 }
 
 .scrollable-container {
-  max-height: 55vh;
+  max-height: 60vh;
   overflow-y: auto;
 }
 
 .booked-time-slots {
   margin-top: 20px;
+  border: 2px solid blue;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 400px;
+}
+
+.results-section {
+  min-width: 400px;
+}
+
+.error-message{
+  color: red;
+}
+
+.booked-times-heading{
+  margin-top:0;
+  padding-top:0;
+}
+
+.booked-slots-info{
+  text-align: center;
 }
 
 /* Media Queries */
-@media (min-width: 768px) {
+@media (min-width: 1100px) {
   .content-container {
     flex-direction: row;
   }
 
   .filters-container {
     margin-right: 40px;
+    max-width: 450px;
+    min-width: 300px;
+    width: 25vw;
   }
 
   .results-section {
-    flex: 3;
+    min-width: 500px;
+    width: 40vw;
+  }
+
+  .results-heading {
+    font-size: 1.5rem;
+  }
+
+  .filters-heading {
+    font-size: 1.25rem;
+  }
+
+  .booked-time-slots{
+    width: 25vw;
+    min-width: 600px;
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1099px) {
+
+  .results-heading {
+    font-size: 1.25rem;
+  }
+
+  .filters-heading {
+    font-size: 1.1rem;
+  }
+
   .content-container {
     flex-direction: column;
+    align-items: center;
   }
 
   .filters-container {
-    width: 100%;
     margin-right: 0;
+    width: 100vw;
+    max-width: 350px;
+    min-width: 250px;
   }
 
   .results-section {
-    flex: 1;
+    width: 70vw;
+    min-width: 325px;
+  }
+
+  .booked-time-slots{
+    width: 70vw;
+    min-width: 325px;
   }
 }
 </style>

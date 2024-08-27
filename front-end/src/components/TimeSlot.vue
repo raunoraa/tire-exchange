@@ -8,15 +8,16 @@
           @mousedown="handleMouseDown"
           @mouseup="handleMouseUp"
         >
-          <h3>{{ formattedDate }} {{ timeSlot.time }}</h3>
-          <p>Exchange Site: {{ timeSlot.siteName }}</p>
-          <p>Address: {{ timeSlot.siteAddress }}</p>
-          <p>Serviceable Vehicle Types: {{ timeSlot.vehicleTypes.join(', ') }}</p>
+          <h3 class="time-slot-datetime">{{ formattedDate }}</h3>
+          <h3 class="time-slot-datetime">{{ timeSlot.time }}</h3>
+          <p class="time-slot-info">Exchange Site: {{ timeSlot.siteName }}</p>
+          <p class="time-slot-info">Address: {{ timeSlot.siteAddress }}</p>
+          <p class="time-slot-info">Serviceable Vehicle Types: {{ timeSlot.vehicleTypes.join(', ') }}</p>
         </div>
   
         <!-- Expandable Booking Rectangle -->
         <div v-if="isExpanded" class="slot-details">
-          <h4>Contact Information</h4>
+          <h4 class="contact-info-heading">Contact Information</h4>
           
           <div class="input-container">
             <input
@@ -170,15 +171,21 @@
   
   <style scoped>
   .time-slot {
-    border: 1px solid #ddd;
-    padding: 10px;
+    border: 1px solid #c0c0c0;
+    padding: 10px;    
     margin-bottom: 10px;
     transition: opacity 2s ease, background-color 0.3s ease;
+    border-radius: 4px;
+    background-color: aqua;
   }
   
   .static-info {
     cursor: pointer;
     transition: background-color 0.3s ease;
+    padding: 10px;  
+    border: 1px solid rgb(99, 99, 99);  
+    border-radius: 4px;
+    background-color: #f0ffe1;
   }
   
   .static-info:hover {
@@ -188,6 +195,14 @@
   .static-info:active {
     background-color: #e0e0e0;
   }
+
+  .time-slot-datetime{
+    padding-top: 2.5px;
+    margin-top: 2.5px;
+
+    padding-bottom: 2.5px;
+    margin-bottom: 2.5px;
+  }
   
   .slot-details {
     margin-top: 10px;
@@ -196,6 +211,7 @@
   .input-container {
     position: relative;
     margin-bottom: 10px;
+    max-width: 500px;
   }
   
   .contact-input {
@@ -203,6 +219,10 @@
     padding: 8px;
     padding-right: 55px; /* Space for the character counter */
     box-sizing: border-box;
+  }
+  
+  .contact-info-heading{
+    margin-bottom: 10px;
   }
   
   .char-counter {
@@ -221,6 +241,15 @@
     color: white;
     border: none;
     cursor: pointer;
+    font-weight: bold;
+  }
+
+  .book-btn:hover{
+    background-color: #23913d;
+  }
+
+  .book-btn:active{
+    background-color: #19692c;
   }
   
   .book-btn:disabled {
@@ -231,10 +260,32 @@
   .booking-message {
     color: red;
     margin-top: 10px;
+    margin-left: 10px;
   }
   
   .fade-out {
     opacity: 0;
+  }  
+
+  @media (min-width: 1100px) {
+    .booking-message{
+        font-size: 0.9rem;
+    }
+
+    .time-slot-info{
+        font-size: 1.05rem;
+    }
   }
+
+  @media (max-width: 1099px) {
+    .booking-message{
+        font-size: 0.7rem;
+    }
+
+    .time-slot-info{
+        font-size: 0.9rem;
+    }
+  }
+
   </style>
   

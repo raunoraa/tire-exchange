@@ -29,13 +29,13 @@ export default {
 html, body {
   height: 100%;
   margin: 0;
-  font-family: 'Roboto', sans-serif; /* Apply the chosen font */
+  font-family: 'Roboto', sans-serif;
 }
 
 #app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Ensures that the app takes at least the full height of the viewport */
+  height: 100vh;
 }
 
 header {
@@ -46,35 +46,35 @@ header {
 }
 
 header h1 {
-  font-size: 2.5rem; /* Responsive font size */
+  font-size: 2.5rem; 
   margin: 0;
 }
 
 header h2 {
-  font-size: 1.5rem; /* Responsive font size */
+  font-size: 1.5rem; 
   margin: 0;
 }
 
 main {
-  flex: 1; /* Allows the main content area to grow and push the footer to the bottom */
+  flex: 1;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  padding: 20px;  
 }
 
 footer {
   background-color: #333;
   color: white;
-  padding: 10px 20px;
+  padding: 15px 20px;
   text-align: center;
-  font-size: 0.875rem; /* Responsive font size */
+  font-size: 0.875rem; 
 }
 
 footer p {
   margin: 0;
 }
 
-/* Responsive Font Sizes */
+
 @media (max-width: 768px) {
   header h1 {
     font-size: 2rem;
