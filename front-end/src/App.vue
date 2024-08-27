@@ -26,7 +26,8 @@ export default {
 
 <style>
 /* Global Styles */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: 'Roboto', sans-serif;
@@ -46,12 +47,12 @@ header {
 }
 
 header h1 {
-  font-size: 2.5rem; 
+  font-size: 2.5rem;
   margin: 0;
 }
 
 header h2 {
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
   margin: 0;
 }
 
@@ -59,7 +60,7 @@ main {
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 20px;  
+  padding: 20px;
 }
 
 footer {
@@ -67,7 +68,7 @@ footer {
   color: white;
   padding: 15px 20px;
   text-align: center;
-  font-size: 0.875rem; 
+  font-size: 0.875rem;
 }
 
 footer p {

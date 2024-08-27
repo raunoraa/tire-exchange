@@ -1,5 +1,5 @@
 <template>
-  <div class="homepage">    
+  <div class="homepage">
 
     <!-- Toggle Switch for View Selection -->
     <div class="view-toggle">
@@ -35,14 +35,16 @@
               <div class="filter-group">
                 <div class="date-picker-group">
                   <label for="fromDate">From:</label>
-                  <VueDatePicker v-model="fromDate" :min-date="minDate" :teleport="true" format="dd/MM/yyyy" placeholder="Select a date"
-                    @input="handleFromDateChange" :enable-time-picker="false" model-type="yyyy-MM-dd" />
+                  <VueDatePicker v-model="fromDate" :min-date="minDate" :teleport="true" format="dd/MM/yyyy"
+                    placeholder="Select a date" @input="handleFromDateChange" :enable-time-picker="false"
+                    model-type="yyyy-MM-dd" />
                   <p v-if="fromDateError" class="error-message">{{ fromDateError }}</p>
                 </div>
                 <div class="date-picker-group">
                   <label for="toDate">To:</label>
-                  <VueDatePicker v-model="toDate" :min-date="fromDate" :teleport="true" format="dd/MM/yyyy" placeholder="Select a date"
-                    @input="handleToDateChange" :enable-time-picker="false" model-type="yyyy-MM-dd" />
+                  <VueDatePicker v-model="toDate" :min-date="fromDate" :teleport="true" format="dd/MM/yyyy"
+                    placeholder="Select a date" @input="handleToDateChange" :enable-time-picker="false"
+                    model-type="yyyy-MM-dd" />
                   <p v-if="toDateError" class="error-message">{{ toDateError }}</p>
                 </div>
               </div>
@@ -63,13 +65,14 @@
                   <input type="checkbox" :id="'type-' + type" :value="type" v-model="selectedVehicleTypes" />
                   <label :for="'type-' + type">{{ type }}</label>
                 </div>
-              </div>              
+              </div>
             </div>
 
             <!-- Apply Filters Button -->
             <div class="apply-filters">
               <button @click="applyFilters" class="apply-filters-button" ref="applyButton">Apply Filters</button>
-              <span v-if="filtersApplied" class="filters-applied-message" ref="filtersAppliedMessage">Filters Applied!</span>
+              <span v-if="filtersApplied" class="filters-applied-message" ref="filtersAppliedMessage">Filters
+                Applied!</span>
             </div>
           </div>
         </div>
@@ -95,11 +98,11 @@
       <div v-if="viewMode === 'booked'" class="booked-time-slots">
         <h2 class="booked-times-heading">My Booked Time Slots</h2>
         <div class="scrollable-container">
-        <BookedTime v-for="slot in sortedBookedSlots" :key="generateKey(slot)" :time-slot="slot"
-          @erase="removeBookedSlot" />
-        <div v-if="!bookedSlots.length">
-          <p class="booked-slots-info">No booked time slots.</p>
-        </div>
+          <BookedTime v-for="slot in sortedBookedSlots" :key="generateKey(slot)" :time-slot="slot"
+            @erase="removeBookedSlot" />
+          <div v-if="!bookedSlots.length">
+            <p class="booked-slots-info">No booked time slots.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -196,7 +199,7 @@ export default {
         this.filtersApplied = false;
       }
     },
-    hideFiltersAppliedMessage(event){
+    hideFiltersAppliedMessage(event) {
       // Ensure the click is outside the button and the message span
       const applyButton = this.$refs.applyButton;
       const messageSpan = this.$refs.filtersAppliedMessage;
@@ -329,7 +332,7 @@ h2 {
   margin: 0 5px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;  
+  cursor: pointer;
   font-weight: bold;
   font-size: 1rem;
 }
@@ -353,7 +356,7 @@ h2 {
 /* Container for filters and time slots */
 .content-container {
   justify-content: center;
-  display: flex;  
+  display: flex;
   gap: 30px;
   align-items: flex-start;
 }
@@ -361,7 +364,7 @@ h2 {
 /* Filters Section */
 .filters-container {
   display: flex;
-  flex-direction: column;  
+  flex-direction: column;
 }
 
 .filter-results-section {
@@ -379,7 +382,7 @@ h2 {
   text-align: center;
   cursor: pointer;
 
-  padding: 10px;  
+  padding: 10px;
   background-color: rgb(255, 218, 218);
   border-radius: 4px;
 }
@@ -400,48 +403,48 @@ h2 {
   transition: max-height 0.3s ease;
 }
 
-.filters-applied-message{
+.filters-applied-message {
   margin-left: 10px;
   color: green;
 }
 
 .filters-container .filters {
   max-height: 700px;
-  margin:5px;
+  margin: 5px;
   margin-top: 0;
 }
 
-.filter-item{
-  margin-bottom:10px;
-}
-
-.date-picker-group{
-  margin-right: 10px;  
-  margin-bottom: 10px;  
-}
-
-.filter-section{
-  margin-top: 35px;
-  margin-bottom: 30px;  
-}
-
-.match-mode{  
+.filter-item {
   margin-bottom: 10px;
 }
 
-.match-mode select{
+.date-picker-group {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.filter-section {
+  margin-top: 35px;
+  margin-bottom: 30px;
+}
+
+.match-mode {
+  margin-bottom: 10px;
+}
+
+.match-mode select {
   font-size: 0.9rem;
 }
 
-.apply-filters{
+.apply-filters {
   margin: 10px;
 }
 
-.apply-filters button{
-  padding: 10px 15px;  
+.apply-filters button {
+  padding: 10px 15px;
   border: 1px solid black;
   border-radius: 4px;
-  cursor: pointer;  
+  cursor: pointer;
   font-weight: bold;
 }
 
@@ -477,16 +480,16 @@ h2 {
   min-width: 400px;
 }
 
-.error-message{
+.error-message {
   color: red;
 }
 
-.booked-times-heading{
-  margin-top:0;
-  padding-top:0;
+.booked-times-heading {
+  margin-top: 0;
+  padding-top: 0;
 }
 
-.booked-slots-info{
+.booked-slots-info {
   text-align: center;
 }
 
@@ -516,7 +519,7 @@ h2 {
     font-size: 1.25rem;
   }
 
-  .booked-time-slots{
+  .booked-time-slots {
     width: 25vw;
     min-width: 600px;
   }
@@ -549,7 +552,7 @@ h2 {
     min-width: 325px;
   }
 
-  .booked-time-slots{
+  .booked-time-slots {
     width: 70vw;
     min-width: 325px;
   }
