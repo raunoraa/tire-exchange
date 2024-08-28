@@ -7,11 +7,11 @@
 - [Technologies Used](#technologies-used)
 - [Features](#features)
 - [Setup Instructions](#setup-instructions)
-  - [General Setup] (#general-setup)
+  - [General Setup](#general-setup)
   - [Back-End Setup](#back-end-setup)
   - [Front-End Setup](#front-end-setup)
 - [Configuration](#configuration)
-  - [Adding or Modifying Sites] (#adding-or-modifying-sites)
+  - [Adding or Modifying Sites](#adding-or-modifying-sites)
   - [Modifying Back-End and Front-End URLs](#modifying-back-end-and-front-end-urls)
 
 
