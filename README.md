@@ -12,7 +12,7 @@
   - [Front-End Setup](#front-end-setup)
 - [Configuration](#configuration)
   - [Adding or Modifying Sites](#adding-or-modifying-sites)
-  - [Modifying Back-End and Front-End URLs](#modifying-back-end-and-front-end-urls)
+  - [Modifying Back-End and Front-End Ports](#modifying-back-end-and-front-end-ports)
 
 
 ## Project Overview
@@ -81,7 +81,7 @@ The Tire Exchange Application provides a platform for users to book tire exchang
 - **Adding Sites:** To add a new site, provide the necessary site information in the application.yml file under the tire-exchange-sites section. Ensure that each siteId is unique. For each new site, create a corresponding API client class that implements the TireExchangeClient interface.
 - **Modifying Sites:** You can safely modify the site information (like name, address, vehicle types) in the application.yml file, but do not change the siteId as it must remain unique and consistent.
 
-### Modifying Back-End and Front-End ports
+### Modifying Back-End and Front-End Ports
 
 - **Modifying Back-End port:** To modify the port, where the back-end will run, change the server.port parameter in application.yml file. After that, the back-end port should also be changed in the front-end configuration file src/config/config.js (modify the port in the apiBaseUrl property's URL).
 - **Modifying Front-End port:** To modify the port, where the front-end will run, change the devServer.port property in the other front-end configuration file vue.config.js. After that, the port number needs to be changed in the back-end's WebConfig.java file as well (modify the port in the URL).
