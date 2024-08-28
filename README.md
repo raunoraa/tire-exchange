@@ -51,6 +51,9 @@ The Tire Exchange Application provides a platform for users to book tire exchang
 
 **2. Navigate to the cloned repository's folder.**
 
+**3. Download and run the external API simulators.** 
+- Follow the inctructions provided on the following GitHub repository: https://github.com/Surmus/tire-change-workshop/tree/master
+
 ### Back-End Setup
 
 **1. Navigate to the back-end folder.**
