@@ -59,7 +59,7 @@ The Tire Exchange Application provides a platform for users to book tire exchang
 **1. Navigate to the back-end folder.**
 
 **2. Run the Spring Boot application:**
-- Use your preferred IDE or run the following command to start the application: `./mvnw spring-boot:run`
+- Use your preferred IDE or run the following command to start the application: `mvnw spring-boot:run`
 - Back-End will run by default on http://localhost:8080/tire-exchange.
 
 ### Front-End Setup
